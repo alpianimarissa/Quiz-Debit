@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif Matematika: Debit (Kelas 6 SD)</title>
+    <!-- Menggunakan Tailwind CSS untuk tata letak dan styling modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Google: Fredoka untuk judul yang ramah anak & Inter untuk keterbacaan soal -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Ikon Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+            min-height: 100vh;
+        }
+        h1, h2, h3, .font-fredoka {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Animasi gelombang air halus pada latar belakang header */
+        .water-pattern {
+            background-color: #0284c7;
+            background-image: radial-gradient(#38bdf8 1px, transparent 1px), radial-gradient(#38bdf8 1px, #0284c7 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+        /* Custom scrollbar untuk panel navigasi */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.25s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-sky-200 selection:text-sky-900 pb-12">
+
+    <!-- Header Tema Air -->
+    <header class="water-pattern text-white shadow-lg border-b-4 border-sky-800 sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-2.5 rounded-2xl backdrop-blur-sm border border-white/30 shadow-inner">
+                    <i data-lucide="droplets" class="w-7 h-7 sm:w-8 sm:h-8 text-sky-100"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-wide drop-shadow-sm">Petualangan Debit Air</h1>
+                    <p class="text-xs sm:text-sm text-sky-100 font-medium">Matematika Kelas 6 SD • 30 Soal Interaktif</p>
+                </div>
+            </div>
+
+            <!-- Indikator Status Penyimpanan & Skor -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div id="save-indicator" class="hidden sm:flex items-center gap-1.5 bg-sky-900/40 px-3 py-1.5 rounded-full text-xs text-sky-100 border border-sky-400/30">
+                    <i data-lucide="cloud-check" class="w-4 h-4 text-emerald-300"></i>
+                    <span>Tersimpan Otomatis</span>
+                </div>
+                <div class="bg-white text-sky-900 px-3.5 py-1.5 rounded-2xl font-bold text-sm shadow-md flex items-center gap-2">
+                    <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
+                    <span>Skor: <span id="header-score" class="text-sky-600 text-base">0</span></span>
+                </div>
+            </div>
+        </div>
+        <!-- Progress Bar Keseluruhan -->
+        <div class="w-full bg-sky-950/40 h-2">
+            <div id="progress-bar" class="bg-gradient-to-r from-emerald-400 to-teal-300 h-2 transition-all duration-500" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <!-- Kontainer Utama -->
+    <main class="max-w-6xl mx-auto px-4 pt-6">
+        
+        <!-- Kartu Rumus Cepat (Bisa dibuka/tutup) -->
+        <div class="mb-6 bg-white/90 backdrop-blur-md rounded-2xl shadow-sm border border-sky-200 overflow-hidden">
+            <button onclick="toggleFormula()" class="w-full px-5 py-3 flex items-center justify-between text-left hover:bg-sky-50/80 transition-colors">
+                <div class="flex items-center gap-2.5 text-sky-800 font-semibold">
+                    <i data-lucide="lightbulb" class="w-5 h-5 text-amber-500"></i>
+                    <span>Bantuan Rumus Segitiga Debit (V - D - W)</span>
+                </div>
+                <i id="formula-chevron" data-lucide="chevron-down" class="w-5 h-5 text-sky-600 transition-transform duration-200"></i>
+            </button>
+            <div id="formula-content" class="hidden px-5 pb-4 pt-2 border-t border-sky-100 bg-sky-50/50">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                    <div class="bg-white p-3 rounded-xl border border-sky-100 shadow-xs">
+                        <span class="font-bold text-sky-700 block mb-1">1. Mencari Debit (D)</span>
+                        <code class="bg-sky-100 text-sky-900 px-2 py-0.5 rounded font-bold">D = V ÷ W</code>
+                        <p class="text-xs text-slate-500 mt-1">Volume dibagi Waktu</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-sky-100 shadow-xs">
+                        <span class="font-bold text-teal-700 block mb-1">2. Mencari Volume (V)</span>
+                        <code class="bg-teal-100 text-teal-900 px-2 py-0.5 rounded font-bold">V = D × W</code>
+                        <p class="text-xs text-slate-500 mt-1">Debit dikali Waktu</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-sky-100 shadow-xs">
+                        <span class="font-bold text-indigo-700 block mb-1">3. Mencari Waktu (W)</span>
+                        <code class="bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded font-bold">W = V ÷ D</code>
+                        <p class="text-xs text-slate-500 mt-1">Volume dibagi Debit</p>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-600 mt-2.5 flex items-center gap-1.5">
+                    <i data-lucide="info" class="w-4 h-4 text-sky-600 shrink-0"></i>
+                    <span><strong>Ingat Satuan:</strong> 1 liter = 1 dm³ = 1.000 cm³ = 1.000 ml | 1 m³ = 1.000 liter | 1 jam = 60 menit = 3.600 detik.</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Grid Layout: Kiri Area Soal, Kanan Navigasi -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Kolom Area Soal (8 Kolom di Layar Besar) -->
+            <div class="lg:col-span-8 space-y-4">
+                <div id="quiz-card" class="bg-white rounded-3xl shadow-xl border-2 border-sky-100 p-5 sm:p-8 relative overflow-hidden">
+                    <!-- Dekorasi Tetes Air -->
+                    <div class="absolute -right-8 -top-8 w-32 h-32 bg-sky-50 rounded-full pointer-events-none"></div>
+
+                    <!-- Header Soal -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-5 pb-4 border-b border-slate-100 relative z-10">
+                        <div class="flex items-center gap-2">
+                            <span id="question-badge" class="bg-sky-600 text-white font-fredoka font-semibold px-3.5 py-1 rounded-xl text-sm shadow-xs">
+                                Soal 1 dari 30
+                            </span>
+                            <span id="question-category" class="bg-sky-100 text-sky-800 text-xs font-semibold px-2.5 py-1 rounded-lg">
+                                Konversi Satuan
+                            </span>
+                        </div>
+                        <span id="question-status-badge" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-500">
+                            Belum Dijawab
+                        </span>
+                    </div>
+
+                    <!-- Teks Pertanyaan -->
+                    <div class="mb-6 relative z-10">
+                        <p id="question-text" class="text-base sm:text-lg font-medium text-slate-800 leading-relaxed">
+                            Memuat soal...
+                        </p>
+                    </div>
+
+                    <!-- Pilihan Jawaban -->
+                    <div id="options-container" class="space-y-3 relative z-10">
+                        <!-- Opsi jawaban akan di-render oleh JavaScript -->
+                    </div>
+
+                    <!-- Kotak Umpan Balik Langsung (Benar/Salah & Pembahasan) -->
+                    <div id="feedback-box" class="hidden mt-6 p-4 sm:p-5 rounded-2xl border-2 animate-pop relative z-10">
+                        <div class="flex items-start gap-3">
+                            <div id="feedback-icon" class="p-2 rounded-xl shrink-0 mt-0.5"></div>
+                            <div class="flex-1">
+                                <h4 id="feedback-title" class="font-fredoka font-bold text-lg"></h4>
+                                <p id="feedback-explanation" class="text-sm mt-1 leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Navigasi Bawah Soal -->
+                    <div class="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between gap-3 relative z-10">
+                        <button id="btn-prev" onclick="prevQuestion()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                            <span>Sebelumnya</span>
+                        </button>
+
+                        <button id="btn-finish" onclick="showSummaryModal()" class="hidden items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-200 transition-all cursor-pointer">
+                            <i data-lucide="trophy" class="w-4 h-4"></i>
+                            <span>Lihat Hasil Akhir</span>
+                        </button>
+
+                        <button id="btn-next" onclick="nextQuestion()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-sky-600 text-white hover:bg-sky-700 shadow-md shadow-sky-200 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer">
+                            <span>Selanjutnya</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Navigasi Nomor Soal (4 Kolom di Layar Besar) -->
+            <div class="lg:col-span-4 space-y-4">
+                <div class="bg-white rounded-3xl shadow-xl border-2 border-sky-100 p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-fredoka font-bold text-slate-800 text-lg flex items-center gap-2">
+                            <i data-lucide="grid" class="w-5 h-5 text-sky-600"></i>
+                            <span>Navigasi Soal</span>
+                        </h3>
+                        <span id="answered-counter" class="text-xs font-bold bg-sky-100 text-sky-800 px-2.5 py-1 rounded-lg">
+                            0 / 30 Terjawab
+                        </span>
+                    </div>
+
+                    <!-- Legenda Warna -->
+                    <div class="grid grid-cols-2 gap-2 text-xs text-slate-600 mb-4 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-sm bg-emerald-500 inline-block"></span>
+                            <span>Benar (<span id="count-correct">0</span>)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-sm bg-rose-500 inline-block"></span>
+                            <span>Salah (<span id="count-wrong">0</span>)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-sm bg-white border-2 border-sky-600 inline-block"></span>
+                            <span>Sedang Dibuka</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-sm bg-slate-200 inline-block"></span>
+                            <span>Belum Dijawab</span>
+                        </div>
+                    </div>
+
+                    <!-- Grid 30 Nomor Soal -->
+                    <div id="nav-grid" class="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 gap-2 max-h-80 overflow-y-auto p-1">
+                        <!-- Tombol nomor 1-30 di-render via JS -->
+                    </div>
+
+                    <!-- Tombol Aksi Tambahan -->
+                    <div class="mt-5 pt-4 border-t border-slate-100 flex flex-col gap-2">
+                        <button onclick="showSummaryModal()" class="w-full py-2.5 px-4 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer border border-sky-200">
+                            <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+                            <span>Cek Rekap Nilai</span>
+                        </button>
+                        <button onclick="openResetModal()" class="w-full py-2 px-4 rounded-xl text-rose-600 hover:bg-rose-50 font-medium text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            <span>Ulangi Kuis dari Awal</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal Hasil Akhir / Rekap Nilai -->
+    <div id="summary-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border-2 border-sky-100 animate-pop text-center relative">
+            <div class="w-20 h-20 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+                <i data-lucide="award" class="w-10 h-10"></i>
+            </div>
+            <h2 class="text-2xl font-fredoka font-bold text-slate-800">Rekap Hasil Kuis Debit</h2>
+            <p id="summary-subtitle" class="text-sm text-slate-500 mt-1">Terus berlatih agar semakin mahir!</p>
+
+            <div class="my-6 bg-gradient-to-br from-sky-50 to-teal-50 p-5 rounded-2xl border border-sky-200">
+                <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Nilai Akhir Kamu</span>
+                <div id="final-score-display" class="text-5xl font-fredoka font-bold text-sky-600 my-1">0</div>
+                <p id="final-predicate" class="text-sm font-semibold text-teal-700 mt-1">Semangat Belajar!</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 mb-6 text-center">
+                <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                    <div id="modal-correct" class="text-lg font-bold text-emerald-600">0</div>
+                    <div class="text-xs text-emerald-800 font-medium">Benar</div>
+                </div>
+                <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
+                    <div id="modal-wrong" class="text-lg font-bold text-rose-600">0</div>
+                    <div class="text-xs text-rose-800 font-medium">Salah</div>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div id="modal-unanswered" class="text-lg font-bold text-slate-600">30</div>
+                    <div class="text-xs text-slate-700 font-medium">Kosong</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2.5">
+                <button onclick="closeSummaryModal()" class="flex-1 py-3 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-sm transition-colors cursor-pointer">
+                    Kembali ke Soal
+                </button>
+                <button onclick="closeSummaryModal(); openResetModal();" class="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition-colors cursor-pointer">
+                    Reset Kuis
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi Reset Kuis (Pengganti confirm() bawaan browser) -->
+    <div id="reset-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border-2 border-rose-100 animate-pop text-center">
+            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="alert-triangle" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-xl font-fredoka font-bold text-slate-800">Ulangi Kuis dari Awal?</h3>
+            <p class="text-sm text-slate-600 mt-2">
+                Semua jawaban yang sudah tersimpan akan dihapus dan posisi opsi jawaban akan diacak ulang secara seimbang.
+            </p>
+            <div class="mt-6 flex gap-2.5">
+                <button onclick="closeResetModal()" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition-colors cursor-pointer">
+                    Batal
+                </button>
+                <button onclick="confirmResetQuiz()" class="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm transition-colors cursor-pointer">
+                    Ya, Ulangi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * BANK SOAL DEBIT KELAS 6 SD (30 SOAL)
+         * Setiap soal memiliki:
+         * - id: nomor unik 1-30
+         * - category: sub-topik materi debit
+         * - question: teks soal cerita / hitungan
+         * - options: array berisi 4 pilihan jawaban (indeks 0 selalu jawaban benar sebelum diacak seimbang)
+         * - explanation: penjelasan langkah penyelesaian untuk umpan balik langsung
+         */
+        const RAW_QUESTIONS = [
+            {
+                id: 1,
+                category: "Konsep Dasar Debit",
+                question: "Banyaknya volume zat cair yang mengalir melalui suatu penampang tiap satu satuan waktu disebut ....",
+                options: ["Debit", "Volume", "Kecepatan", "Massa jenis"],
+                explanation: "Debit adalah perbandingan antara volume zat cair yang mengalir dengan waktu alirannya."
+            },
+            {
+                id: 2,
+                category: "Konversi Satuan Volume",
+                question: "Sebuah galon air mineral berisi 18 liter air. Jika dinyatakan dalam satuan cm³, volume air dalam galon tersebut adalah ....",
+                options: ["18.000 cm³", "1.800 cm³", "180 cm³", "180.000 cm³"],
+                explanation: "Ingat bahwa 1 liter = 1 dm³ = 1.000 cm³. Maka 18 liter = 18 × 1.000 = 18.000 cm³."
+            },
+            {
+                id: 3,
+                category: "Konversi Satuan Debit",
+                question: "Air mengalir dari sebuah keran dengan debit 240 liter/menit. Debit air tersebut jika diubah ke dalam satuan liter/detik adalah ....",
+                options: ["4 liter/detik", "40 liter/detik", "0,4 liter/detik", "14.400 liter/detik"],
+                explanation: "1 menit = 60 detik. Maka 240 liter/menit = 240 ÷ 60 = 4 liter/detik."
+            },
+            {
+                id: 4,
+                category: "Konversi Satuan Debit",
+                question: "Sebuah selang pemadam kebakaran menyemprotkan air dengan debit 15 liter/detik. Debit air tersebut sama dengan ....",
+                options: ["900 liter/menit", "90 liter/menit", "250 liter/menit", "1.500 liter/menit"],
+                explanation: "Dalam 1 menit (60 detik), air yang keluar adalah 15 × 60 = 900 liter/menit."
+            },
+            {
+                id: 5,
+                category: "Konversi Satuan Debit",
+                question: "Debit aliran air di sebuah sungai tercatat 36 m³/menit. Nilai debit tersebut dalam satuan liter/detik adalah ....",
+                options: ["600 liter/detik", "60 liter/detik", "3.600 liter/detik", "6 liter/detik"],
+                explanation: "36 m³ = 36.000 liter, dan 1 menit = 60 detik. Jadi 36.000 ÷ 60 = 600 liter/detik."
+            },
+            {
+                id: 6,
+                category: "Konversi Satuan Debit",
+                question: "Sebuah infus meneteskan cairan dengan debit 120 ml/menit. Debit infus tersebut sama dengan ....",
+                options: ["2 cm³/detik", "20 cm³/detik", "0,2 cm³/detik", "7,2 cm³/detik"],
+                explanation: "1 ml = 1 cm³ dan 1 menit = 60 detik. Jadi 120 ml/menit = 120 cm³ ÷ 60 detik = 2 cm³/detik."
+            },
+            {
+                id: 7,
+                category: "Menghitung Debit",
+                question: "Air sebanyak 450 liter mengalir melalui sebuah pipa dalam waktu 15 menit. Debit air yang mengalir pada pipa tersebut adalah ....",
+                options: ["30 liter/menit", "25 liter/menit", "35 liter/menit", "45 liter/menit"],
+                explanation: "Debit = Volume ÷ Waktu = 450 liter ÷ 15 menit = 30 liter/menit."
+            },
+            {
+                id: 8,
+                category: "Menghitung Debit",
+                question: "Sebuah ember berkapasitas 36 liter diisi air dari keran hingga penuh dalam waktu 3 menit. Debit air keran tersebut dalam satuan liter/detik adalah ....",
+                options: ["0,2 liter/detik", "12 liter/detik", "2 liter/detik", "1,2 liter/detik"],
+                explanation: "Waktu = 3 menit = 180 detik. Debit = 36 liter ÷ 180 detik = 0,2 liter/detik."
+            },
+            {
+                id: 9,
+                category: "Menghitung Debit",
+                question: "Dalam waktu 25 detik, sebuah selang mampu mengalirkan air sebanyak 5.000 cm³. Debit air selang tersebut adalah ....",
+                options: ["200 cm³/detik", "20 cm³/detik", "125 cm³/detik", "250 cm³/detik"],
+                explanation: "Debit = Volume ÷ Waktu = 5.000 cm³ ÷ 25 detik = 200 cm³/detik."
+            },
+            {
+                id: 10,
+                category: "Menghitung Debit",
+                question: "Sebuah tangki minyak tanah berisi 6.000 liter dialirkan ke dalam drum-drum selama 30 menit hingga habis. Debit aliran minyak tanah tersebut adalah ....",
+                options: ["200 liter/menit", "20 liter/menit", "180 liter/menit", "300 liter/menit"],
+                explanation: "Debit = 6.000 liter ÷ 30 menit = 200 liter/menit."
+            },
+            {
+                id: 11,
+                category: "Menghitung Volume",
+                question: "Sebuah keran mengalirkan air dengan debit 15 liter/menit. Jika keran dibuka selama 12 menit, volume air yang tertampung adalah ....",
+                options: ["180 liter", "150 liter", "27 liter", "120 liter"],
+                explanation: "Volume = Debit × Waktu = 15 liter/menit × 12 menit = 180 liter."
+            },
+            {
+                id: 12,
+                category: "Menghitung Volume",
+                question: "Air mengalir melalui selang dengan debit 250 cm³/detik. Volume air yang mengalir selama 4 menit adalah ....",
+                options: ["60 liter", "1 liter", "6 liter", "100 liter"],
+                explanation: "Waktu = 4 menit = 240 detik. Volume = 250 × 240 = 60.000 cm³ = 60 dm³ = 60 liter."
+            },
+            {
+                id: 13,
+                category: "Menghitung Volume",
+                question: "Sebuah pompa air memiliki debit 40 liter/menit. Jika pompa digunakan selama 1,5 jam, banyak air yang dipompa adalah ....",
+                options: ["3.600 liter", "60 liter", "2.400 liter", "360 liter"],
+                explanation: "Waktu = 1,5 jam = 90 menit. Volume = 40 liter/menit × 90 menit = 3.600 liter."
+            },
+            {
+                id: 14,
+                category: "Menghitung Volume",
+                question: "Pintu air sebuah bendungan dibuka dengan debit 12 m³/detik. Volume air yang melewati pintu air tersebut selama 5 menit adalah ....",
+                options: ["3.600 m³", "60 m³", "720 m³", "360 m³"],
+                explanation: "Waktu = 5 menit = 300 detik. Volume = 12 m³/detik × 300 detik = 3.600 m³."
+            },
+            {
+                id: 15,
+                category: "Menghitung Waktu",
+                question: "Sebuah bak mandi memiliki volume 600 liter. Bak tersebut diisi air melalui keran dengan debit 20 liter/menit. Waktu yang diperlukan untuk mengisi bak hingga penuh adalah ....",
+                options: ["30 menit", "12 menit", "20 menit", "40 menit"],
+                explanation: "Waktu = Volume ÷ Debit = 600 liter ÷ 20 liter/menit = 30 menit."
+            },
+            {
+                id: 16,
+                category: "Menghitung Waktu",
+                question: "Ayah mengisi kolam ikan yang berkapasitas 2.400 liter menggunakan selang berdebit 40 liter/menit. Lama waktu ayah mengisi kolam ikan tersebut adalah ....",
+                options: ["1 jam", "40 menit", "1,5 jam", "2 jam"],
+                explanation: "Waktu = 2.400 ÷ 40 = 60 menit. 60 menit sama dengan 1 jam."
+            },
+            {
+                id: 17,
+                category: "Menghitung Waktu",
+                question: "Sebuah akuarium memiliki volume 45 liter. Akuarium diisi air dengan debit 150 cm³/detik. Waktu yang dibutuhkan hingga akuarium penuh adalah ....",
+                options: ["5 menit", "3 menit", "30 detik", "50 menit"],
+                explanation: "Volume = 45 liter = 45.000 cm³. Waktu = 45.000 ÷ 150 = 300 detik = 5 menit."
+            },
+            {
+                id: 18,
+                category: "Menghitung Waktu",
+                question: "Mobil tangki membawa 4.800 liter bensin yang akan dipindahkan ke tangki SPBU dengan debit 80 liter/menit. Waktu yang diperlukan adalah ....",
+                options: ["1 jam", "48 menit", "80 menit", "30 menit"],
+                explanation: "Waktu = 4.800 liter ÷ 80 liter/menit = 60 menit = 1 jam."
+            },
+            {
+                id: 19,
+                category: "Aplikasi Bangun Ruang",
+                question: "Sebuah bak mandi berbentuk balok berukuran panjang 100 cm, lebar 60 cm, dan tinggi 50 cm. Jika diisi air hingga penuh dalam waktu 15 menit, debit keran tersebut adalah ....",
+                options: ["20 liter/menit", "200 liter/menit", "30 liter/menit", "15 liter/menit"],
+                explanation: "Volume balok = 100 × 60 × 50 = 300.000 cm³ = 300 liter. Debit = 300 liter ÷ 15 menit = 20 liter/menit."
+            },
+            {
+                id: 20,
+                category: "Aplikasi Bangun Ruang",
+                question: "Sebuah wadah berbentuk kubus dengan panjang rusuk 40 cm diisi air menggunakan selang berdebit 1,6 liter/menit. Waktu yang dibutuhkan sampai wadah penuh adalah ....",
+                options: ["40 menit", "25 menit", "10 menit", "64 menit"],
+                explanation: "Volume kubus = 40 × 40 × 40 = 64.000 cm³ = 64 liter. Waktu = 64 liter ÷ 1,6 liter/menit = 40 menit."
+            },
+            {
+                id: 21,
+                category: "Aplikasi Bangun Ruang",
+                question: "Kolam renang berukuran panjang 10 m, lebar 5 m, dan kedalaman 1,2 m akan diisi air hingga penuh dengan debit 500 liter/menit. Waktu yang dibutuhkan adalah ....",
+                options: ["2 jam", "1 jam", "1,5 jam", "3 jam"],
+                explanation: "Volume kolam = 10 × 5 × 1,2 = 60 m³ = 60.000 liter. Waktu = 60.000 ÷ 500 = 120 menit = 2 jam."
+            },
+            {
+                id: 22,
+                category: "Soal Cerita Bertingkat",
+                question: "Sebuah tandon air berisi 1.200 liter air. Karena bocor, setelah 20 menit air yang tersisa di dalam tandon adalah 900 liter. Debit kebocoran tandon tersebut adalah ....",
+                options: ["15 liter/menit", "45 liter/menit", "60 liter/menit", "30 liter/menit"],
+                explanation: "Volume air yang hilang = 1.200 - 900 = 300 liter. Debit kebocoran = 300 liter ÷ 20 menit = 15 liter/menit."
+            },
+            {
+                id: 23,
+                category: "Soal Cerita Bertingkat",
+                question: "Bak penampungan air mula-mula berisi 250 liter. Kemudian diisi air melalui pipa berdebit 35 liter/menit selama 10 menit. Volume air dalam bak sekarang adalah ....",
+                options: ["600 liter", "350 liter", "285 liter", "500 liter"],
+                explanation: "Tambahan air = 35 × 10 = 350 liter. Total air sekarang = 250 + 350 = 600 liter."
+            },
+            {
+                id: 24,
+                category: "Soal Cerita Bertingkat",
+                question: "Sebuah drum berkapasitas 500 liter baru terisi 2/5 bagian. Jika drum diisi hingga penuh dengan debit 15 liter/menit, waktu yang diperlukan adalah ....",
+                options: ["20 menit", "13,3 menit", "30 menit", "25 menit"],
+                explanation: "Bagian yang belum terisi = 1 - 2/5 = 3/5 bagian = 3/5 × 500 = 300 liter. Waktu = 300 ÷ 15 = 20 menit."
+            },
+            {
+                id: 25,
+                category: "Soal Cerita Bertingkat",
+                question: "Dua buah keran dibuka bersamaan untuk mengisi kolam. Keran A memiliki debit 25 liter/menit dan keran B memiliki debit 35 liter/menit. Jika kolam penuh dalam 40 menit, volume kolam tersebut adalah ....",
+                options: ["2.400 liter", "1.000 liter", "1.400 liter", "2.000 liter"],
+                explanation: "Debit gabungan = 25 + 35 = 60 liter/menit. Volume = 60 liter/menit × 40 menit = 2.400 liter."
+            },
+            {
+                id: 26,
+                category: "Soal Cerita Bertingkat",
+                question: "Sebuah bak berisi 800 liter air. Pada bagian bawah bak terdapat lubang pembuangan dengan debit 10 liter/menit, sedangkan dari atas diisi dengan debit 30 liter/menit. Volume air setelah 15 menit adalah ....",
+                options: ["1.100 liter", "1.250 liter", "650 liter", "950 liter"],
+                explanation: "Selisih debit masuk dan keluar = 30 - 10 = 20 liter/menit. Pertambahan dalam 15 menit = 20 × 15 = 300 liter. Total = 800 + 300 = 1.100 liter."
+            },
+            {
+                id: 27,
+                category: "Soal Cerita Bertingkat",
+                question: "Ibu mulai mengisi bak mandi pukul 06.15. Volume bak mandi 720 liter dan debit air keran 12 liter/menit. Bak mandi tersebut akan penuh pada pukul ....",
+                options: ["07.15", "06.45", "07.00", "07.30"],
+                explanation: "Waktu pengisian = 720 ÷ 12 = 60 menit (1 jam). Mulai 06.15 + 1 jam = pukul 07.15."
+            },
+            {
+                id: 28,
+                category: "Perbandingan Debit",
+                question: "Keran P mengalirkan 120 liter air dalam 4 menit. Keran Q mengalirkan 150 liter air dalam 6 menit. Pernyataan yang benar tentang debit kedua keran adalah ....",
+                options: [
+                    "Debit keran P lebih besar daripada keran Q",
+                    "Debit keran Q lebih besar daripada keran P",
+                    "Debit keran P sama dengan keran Q",
+                    "Selisih debit kedua keran adalah 10 liter/menit"
+                ],
+                explanation: "Debit P = 120 ÷ 4 = 30 liter/menit. Debit Q = 150 ÷ 6 = 25 liter/menit. Jadi debit P lebih besar daripada Q (selisihnya 5 liter/menit)."
+            },
+            {
+                id: 29,
+                category: "Konversi Satuan Debit",
+                question: "Sebuah pipa menyalurkan air dengan debit 54 m³/jam. Jika diubah menjadi satuan liter/detik, debit pipa tersebut adalah ....",
+                options: ["15 liter/detik", "1,5 liter/detik", "150 liter/detik", "900 liter/detik"],
+                explanation: "54 m³ = 54.000 liter, dan 1 jam = 3.600 detik. Maka 54.000 ÷ 3.600 = 15 liter/detik."
+            },
+            {
+                id: 30,
+                category: "Pemecahan Masalah",
+                question: "Sebuah mobil pemadam kebakaran membawa 4.500 liter air. Setelah digunakan memadamkan api selama 12 menit, air di tangki tersisa 900 liter. Debit air yang digunakan mobil pemadam tersebut adalah ....",
+                options: ["300 liter/menit", "375 liter/menit", "75 liter/menit", "250 liter/menit"],
+                explanation: "Air yang terpakai = 4.500 - 900 = 3.600 liter. Debit = 3.600 liter ÷ 12 menit = 300 liter/menit."
+            }
+        ];
+
+        // Kunci penyimpanan lokal (localStorage) unik agar tidak hilang saat reload / offline
+        const STORAGE_KEY = 'kuis_debit_sd6_state_v1';
+
+        // State aplikasi
+        let quizState = {
+            currentIndex: 0,
+            questions: [], // Akan menyimpan soal dengan urutan opsi A, B, C, D yang sudah diacak seimbang
+            answers: {}    // Format: { [questionId]: selectedOptionIndex }
+        };
+
+        /**
+         * Membuat distribusi indeks jawaban benar (0=A, 1=B, 2=C, 3=D) yang SEIMBANG dan ACAK (tidak berpola A-B-C-D).
+         * Untuk 30 soal: 8 soal A, 8 soal B, 7 soal C, 7 soal D (total 30), diacak dengan algoritma Fisher-Yates
+         * serta dipastikan tidak ada 3 huruf sama berturut-turut agar terasa alami.
+         */
+        function generateBalancedCorrectPositions(total) {
+            const basePool = [];
+            const letters = [0, 1, 2, 3]; // A, B, C, D
+            for (let i = 0; i < total; i++) {
+                basePool.push(letters[i % 4]);
+            }
+
+            // Acak Fisher-Yates
+            for (let i = basePool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [basePool[i], basePool[j]] = [basePool[j], basePool[i]];
+            }
+
+            // Hindari pola berurutan 0,1,2,3 atau pengulangan beruntun > 2 kali
+            for (let i = 2; i < basePool.length; i++) {
+                if (basePool[i] === basePool[i - 1] && basePool[i] === basePool[i - 2]) {
+                    const swapIdx = (i + 3) % basePool.length;
+                    [basePool[i], basePool[swapIdx]] = [basePool[swapIdx], basePool[i]];
+                }
+            }
+            return basePool;
+        }
+
+        /**
+         * Menginisialisasi soal baru dengan penempatan jawaban benar yang acak namun seimbang
+         */
+        function buildShuffledQuestions() {
+            const targetPositions = generateBalancedCorrectPositions(RAW_QUESTIONS.length);
+
+            return RAW_QUESTIONS.map((q, idx) => {
+                const correctText = q.options[0];
+                const distractors = q.options.slice(1);
+
+                // Acak pengecoh (distractors)
+                for (let i = distractors.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [distractors[i], distractors[j]] = [distractors[j], distractors[i]];
+                }
+
+                // Tempatkan jawaban benar pada indeks target yang sudah diseimbangkan
+                const correctIndex = targetPositions[idx];
+                const finalOptions = [];
+                let dIdx = 0;
+
+                for (let optPos = 0; optPos < 4; optPos++) {
+                    if (optPos === correctIndex) {
+                        finalOptions.push(correctText);
+                    } else {
+                        finalOptions.push(distractors[dIdx++]);
+                    }
+                }
+
+                return {
+                    id: q.id,
+                    category: q.category,
+                    question: q.question,
+                    options: finalOptions,
+                    correctIndex: correctIndex,
+                    explanation: q.explanation
+                };
+            });
+        }
+
+        /**
+         * Menyimpan seluruh state kuis ke localStorage
+         */
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(quizState));
+                flashSaveIndicator();
+            } catch (e) {
+                console.warn('Gagal menyimpan ke localStorage:', e);
+            }
+        }
+
+        /**
+         * Efek visual singkat pada indikator tersimpan
+         */
+        function flashSaveIndicator() {
+            const indicator = document.getElementById('save-indicator');
+            if (!indicator) return;
+            indicator.classList.add('bg-emerald-600/60', 'border-emerald-300');
+            setTimeout(() => {
+                indicator.classList.remove('bg-emerald-600/60', 'border-emerald-300');
+            }, 600);
+        }
+
+        /**
+         * Memuat state dari localStorage atau membuat baru jika belum ada
+         */
+        function loadOrInitState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && Array.isArray(parsed.questions) && parsed.questions.length === RAW_QUESTIONS.length) {
+                        quizState = parsed;
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn('Data tersimpan rusak, membuat sesi baru:', e);
+            }
+
+            quizState = {
+                currentIndex: 0,
+                questions: buildShuffledQuestions(),
+                answers: {}
+            };
+            saveState();
+        }
+
+        /**
+         * Merender soal aktif beserta status jawaban & umpan balik instan
+         */
+        function renderCurrentQuestion() {
+            const q = quizState.questions[quizState.currentIndex];
+            const userAnswer = quizState.answers[q.id];
+            const isAnswered = userAnswer !== undefined;
+            const optionLetters = ['A', 'B', 'C', 'D'];
+
+            // Update header kartu soal
+            document.getElementById('question-badge').textContent = `Soal ${quizState.currentIndex + 1} dari ${quizState.questions.length}`;
+            document.getElementById('question-category').textContent = q.category;
+            document.getElementById('question-text').textContent = q.question;
+
+            // Update lencana status soal
+            const statusBadge = document.getElementById('question-status-badge');
+            if (!isAnswered) {
+                statusBadge.textContent = 'Belum Dijawab';
+                statusBadge.className = 'text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-500';
+            } else if (userAnswer === q.correctIndex) {
+                statusBadge.textContent = '✓ Jawaban Benar';
+                statusBadge.className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700';
+            } else {
+                statusBadge.textContent = '✕ Jawaban Salah';
+                statusBadge.className = 'text-xs font-bold px-3 py-1 rounded-full bg-rose-100 text-rose-700';
+            }
+
+            // Render tombol opsi A, B, C, D
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+
+                let cardStyle = 'border-slate-200 bg-white hover:border-sky-400 hover:bg-sky-50/70 text-slate-700 cursor-pointer';
+                let badgeStyle = 'bg-sky-100 text-sky-800 group-hover:bg-sky-600 group-hover:text-white';
+                let rightIcon = '';
+
+                if (isAnswered) {
+                    btn.disabled = true;
+                    if (idx === q.correctIndex) {
+                        // Opsi yang benar selalu disorot hijau
+                        cardStyle = 'border-emerald-500 bg-emerald-50/90 text-emerald-950 font-semibold shadow-xs cursor-default';
+                        badgeStyle = 'bg-emerald-600 text-white';
+                        rightIcon = '<i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 shrink-0"></i>';
+                    } else if (idx === userAnswer) {
+                        // Opsi salah yang dipilih siswa disorot merah
+                        cardStyle = 'border-rose-500 bg-rose-50/90 text-rose-950 font-medium cursor-default';
+                        badgeStyle = 'bg-rose-600 text-white';
+                        rightIcon = '<i data-lucide="x-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>';
+                    } else {
+                        // Opsi lain yang tidak dipilih meredup
+                        cardStyle = 'border-slate-100 bg-slate-50/60 text-slate-400 cursor-default';
+                        badgeStyle = 'bg-slate-200 text-slate-500';
+                    }
+                }
+
+                btn.className = `group w-full text-left p-3.5 sm:p-4 rounded-2xl border-2 transition-all duration-150 flex items-center justify-between gap-3 ${cardStyle}`;
+                btn.innerHTML = `
+                    <div class="flex items-center gap-3.5">
+                        <span class="w-8 h-8 rounded-xl flex items-center justify-center font-fredoka font-bold text-sm shrink-0 transition-colors ${badgeStyle}">
+                            ${optionLetters[idx]}
+                        </span>
+                        <span class="text-sm sm:text-base leading-snug">${optText}</span>
+                    </div>
+                    ${rightIcon}
+                `;
+
+                if (!isAnswered) {
+                    btn.onclick = () => handleSelectAnswer(idx);
+                }
+
+                optionsContainer.appendChild(btn);
+            });
+
+            // Render Umpan Balik Langsung (Benar/Salah)
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackExplanation = document.getElementById('feedback-explanation');
+
+            if (isAnswered) {
+                const isCorrect = userAnswer === q.correctIndex;
+                feedbackBox.classList.remove('hidden');
+
+                if (isCorrect) {
+                    feedbackBox.className = 'mt-6 p-4 sm:p-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 text-emerald-900 animate-pop relative z-10';
+                    feedbackIcon.className = 'p-2 rounded-xl bg-emerald-200/80 text-emerald-700 shrink-0 mt-0.5';
+                    feedbackIcon.innerHTML = '<i data-lucide="sparkles" class="w-6 h-6"></i>';
+                    feedbackTitle.textContent = 'Hebat! Jawabanmu Benar!';
+                } else {
+                    feedbackBox.className = 'mt-6 p-4 sm:p-5 rounded-2xl border-2 border-rose-300 bg-rose-50 text-rose-950 animate-pop relative z-10';
+                    feedbackIcon.className = 'p-2 rounded-xl bg-rose-200/80 text-rose-700 shrink-0 mt-0.5';
+                    feedbackIcon.innerHTML = '<i data-lucide="info" class="w-6 h-6"></i>';
+                    feedbackTitle.textContent = `Kurang Tepat! Jawaban yang benar adalah ${optionLetters[q.correctIndex]}.`;
+                }
+                feedbackExplanation.innerHTML = `<strong>Pembahasan:</strong> ${q.explanation}`;
+            } else {
+                feedbackBox.classList.add('hidden');
+            }
+
+            // Atur tombol Sebelumnya / Selanjutnya / Hasil Akhir
+            document.getElementById('btn-prev').disabled = quizState.currentIndex === 0;
+            const isLast = quizState.currentIndex === quizState.questions.length - 1;
+            const btnNext = document.getElementById('btn-next');
+            const btnFinish = document.getElementById('btn-finish');
+
+            if (isLast) {
+                btnNext.classList.add('hidden');
+                btnFinish.classList.remove('hidden');
+                btnFinish.classList.add('flex');
+            } else {
+                btnNext.classList.remove('hidden');
+                btnFinish.classList.add('hidden');
+                btnFinish.classList.remove('flex');
+            }
+
+            updateStatsAndNavigation();
+            lucide.createIcons();
+        }
+
+        /**
+         * Menangani pemilihan jawaban oleh siswa
+         */
+        function handleSelectAnswer(optionIndex) {
+            const currentQ = quizState.questions[quizState.currentIndex];
+            // Cegah perubahan jawaban jika sudah diisi
+            if (quizState.answers[currentQ.id] !== undefined) return;
+
+            quizState.answers[currentQ.id] = optionIndex;
+            saveState();
+            renderCurrentQuestion();
+        }
+
+        /**
+         * Memperbarui panel navigasi nomor 1-30, progres bar, dan kalkulasi skor
+         */
+        function updateStatsAndNavigation() {
+            const total = quizState.questions.length;
+            let answeredCount = 0;
+            let correctCount = 0;
+            let wrongCount = 0;
+
+            const navGrid = document.getElementById('nav-grid');
+            navGrid.innerHTML = '';
+
+            quizState.questions.forEach((q, idx) => {
+                const ans = quizState.answers[q.id];
+                const isCurrent = idx === quizState.currentIndex;
+
+                let btnClass = 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-transparent';
+
+                if (ans !== undefined) {
+                    answeredCount++;
+                    if (ans === q.correctIndex) {
+                        correctCount++;
+                        btnClass = 'bg-emerald-500 text-white hover:bg-emerald-600 border-emerald-600';
+                    } else {
+                        wrongCount++;
+                        btnClass = 'bg-rose-500 text-white hover:bg-rose-600 border-rose-600';
+                    }
+                }
+
+                if (isCurrent) {
+                    btnClass += ' ring-2 ring-sky-600 ring-offset-2 font-extrabold scale-105';
+                }
+
+                const navBtn = document.createElement('button');
+                navBtn.type = 'button';
+                navBtn.textContent = idx + 1;
+                navBtn.className = `h-10 rounded-xl font-fredoka text-sm font-semibold border transition-all cursor-pointer flex items-center justify-center ${btnClass}`;
+                navBtn.onclick = () => goToQuestion(idx);
+                navGrid.appendChild(navBtn);
+            });
+
+            // Hitung skor skala 100
+            const score = Math.round((correctCount / total) * 100);
+            const progressPercent = (answeredCount / total) * 100;
+
+            document.getElementById('header-score').textContent = score;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('answered-counter').textContent = `${answeredCount} / ${total} Terjawab`;
+            document.getElementById('count-correct').textContent = correctCount;
+            document.getElementById('count-wrong').textContent = wrongCount;
+        }
+
+        // Fungsi Navigasi
+        function goToQuestion(index) {
+            if (index >= 0 && index < quizState.questions.length) {
+                quizState.currentIndex = index;
+                saveState();
+                renderCurrentQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            goToQuestion(quizState.currentIndex - 1);
+        }
+
+        function nextQuestion() {
+            goToQuestion(quizState.currentIndex + 1);
+        }
+
+        // Buka / Tutup kartu bantuan rumus
+        function toggleFormula() {
+            const content = document.getElementById('formula-content');
+            const chevron = document.getElementById('formula-chevron');
+            content.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        // Modal Rekap Nilai
+        function showSummaryModal() {
+            const total = quizState.questions.length;
+            let correct = 0;
+            let wrong = 0;
+
+            quizState.questions.forEach(q => {
+                const ans = quizState.answers[q.id];
+                if (ans !== undefined) {
+                    if (ans === q.correctIndex) correct++;
+                    else wrong++;
+                }
+            });
+
+            const unanswered = total - (correct + wrong);
+            const score = Math.round((correct / total) * 100);
+
+            document.getElementById('final-score-display').textContent = score;
+            document.getElementById('modal-correct').textContent = correct;
+            document.getElementById('modal-wrong').textContent = wrong;
+            document.getElementById('modal-unanswered').textContent = unanswered;
+
+            let predicate = '';
+            if (score >= 90) predicate = 'Luar Biasa! Master Debit Air! 🌟';
+            else if (score >= 75) predicate = 'Bagus Sekali! Pemahamanmu Sangat Baik! 👏';
+            else if (score >= 60) predicate = 'Cukup Baik! Ayo Teliti Lagi Hitungannya! 👍';
+            else predicate = 'Tetap Semangat! Pelajari Pembahasannya Ya! 💪';
+
+            document.getElementById('final-predicate').textContent = predicate;
+            document.getElementById('summary-subtitle').textContent = unanswered > 0
+                ? `Masih ada ${unanswered} soal yang belum kamu kerjakan.`
+                : 'Semua 30 soal telah selesai kamu kerjakan!';
+
+            const modal = document.getElementById('summary-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeSummaryModal() {
+            const modal = document.getElementById('summary-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Modal Konfirmasi Reset
+        function openResetModal() {
+            const modal = document.getElementById('reset-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeResetModal() {
+            const modal = document.getElementById('reset-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function confirmResetQuiz() {
+            localStorage.removeItem(STORAGE_KEY);
+            quizState = {
+                currentIndex: 0,
+                questions: buildShuffledQuestions(),
+                answers: {}
+            };
+            saveState();
+            closeResetModal();
+            renderCurrentQuestion();
+        }
+
+        // Inisialisasi saat halaman dimuat
+        window.addEventListener('DOMContentLoaded', () => {
+            loadOrInitState();
+            renderCurrentQuestion();
+        });
+    </script>
+</body>
+</html>
